@@ -34,6 +34,8 @@
   const colorsA = ['#fb923c', '#34d399', '#fbbf24', '#f472b6'];
   const colorsB = ['#60a5fa', '#a78bfa', '#22d3ee', '#fb7185'];
   const bandColors = ['#fda4af', '#f0abfc', '#a5b4fc', '#7dd3fc', '#67e8f9', '#86efac', '#fde68a'];
+  const DEFAULT_A = sanitize(els.numberA.value);
+  const DEFAULT_B = sanitize(els.numberB.value);
 
   let timeline = [];
   let cursor = 0;
@@ -62,6 +64,36 @@
       .slice(0, MAX_DIGITS)
       .replace(/^0+(?=\d)/, '');
     return cleaned || '0';
+  }
+
+  function queryNumbers() {
+    const params = new URLSearchParams(window.location.search);
+    const hasA = params.has('a');
+    const hasB = params.has('b');
+    return {
+      hasAny: hasA || hasB,
+      aString: hasA ? sanitize(params.get('a')) : DEFAULT_A,
+      bString: hasB ? sanitize(params.get('b')) : DEFAULT_B,
+    };
+  }
+
+  function setInputsFromQuery() {
+    const query = queryNumbers();
+    els.numberA.value = query.aString;
+    els.numberB.value = query.bString;
+    return query.hasAny;
+  }
+
+  function writeNumberParams(aString, bString) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('a', aString);
+    url.searchParams.set('b', bString);
+
+    const next = `${url.pathname}${url.search}${url.hash}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (next === currentUrl) return;
+
+    window.history.pushState({ a: aString, b: bString }, '', next);
   }
 
   function plural(n, singular, pluralWord = `${singular}s`) {
@@ -842,12 +874,26 @@
     });
   }
 
+  function ensureRenderedFromInputs() {
+    const aString = sanitize(els.numberA.value);
+    const bString = sanitize(els.numberB.value);
+    if (!current || current.aString !== aString || current.bString !== bString) {
+      renderAll();
+    }
+  }
+
   function play(options = {}) {
     if (!current) renderAll();
     if (options.scroll) scrollToAnimation();
     if (playing) return;
     playing = true;
     runNext();
+  }
+
+  function animateFromInputs(options = {}) {
+    ensureRenderedFromInputs();
+    if (current) writeNumberParams(current.aString, current.bString);
+    play(options);
   }
 
   function pause() {
@@ -908,14 +954,13 @@
       input.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
           event.preventDefault();
-          renderAll();
-          play({ scroll: true });
+          animateFromInputs({ scroll: true });
         }
       });
     });
 
     els.buildBtn.addEventListener('click', renderAll);
-    els.playBtn.addEventListener('click', () => play({ scroll: true }));
+    els.playBtn.addEventListener('click', () => animateFromInputs({ scroll: true }));
     els.pauseBtn.addEventListener('click', pause);
     els.stepBtn.addEventListener('click', step);
     els.resetBtn.addEventListener('click', renderAll);
@@ -938,7 +983,7 @@
       if (event.target && ['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return;
       if (event.code === 'Space') {
         event.preventDefault();
-        playing ? pause() : play();
+        playing ? pause() : animateFromInputs();
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
         step();
@@ -946,8 +991,16 @@
         renderAll();
       }
     });
+
+    window.addEventListener('popstate', () => {
+      const hasQueryNumbers = setInputsFromQuery();
+      renderAll();
+      if (hasQueryNumbers) play();
+    });
   }
 
   bindEvents();
+  const hasQueryNumbers = setInputsFromQuery();
   renderAll();
+  if (hasQueryNumbers) play();
 })();
