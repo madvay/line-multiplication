@@ -283,7 +283,7 @@
       const cy = (minY + maxY) / 2;
       const rx = Math.max(58, (maxX - minX) / 2 + 42);
       const ry = Math.max(50, (maxY - minY) / 2 + 38);
-      const labelX = maxX + Math.max(72, rx * 0.66);
+      const labelX = maxX + Math.max(52, rx * 0.48);
       const labelY = cy;
       return {
         s,
@@ -304,14 +304,18 @@
       };
     });
 
+    const bandPad = 18;
+    const countHalfWidth = 50;
+    const countHalfHeight = 38;
     const endpoints = [
       ...aLines.flatMap((line) => [line.p1, line.p2]),
       ...bLines.flatMap((line) => [line.p1, line.p2]),
       ...dots,
       ...bands.flatMap((band) => [
-        { x: band.cx - band.rx - 95, y: band.cy - band.ry - 95 },
-        { x: band.labelX + 120, y: band.labelY + 70 },
-        { x: band.cx + band.rx + 95, y: band.cy + band.ry + 95 },
+        { x: band.cx - band.rx - bandPad, y: band.cy - band.ry - bandPad },
+        { x: band.cx + band.rx + bandPad, y: band.cy + band.ry + bandPad },
+        { x: band.labelX - countHalfWidth - bandPad, y: band.labelY - countHalfHeight - bandPad },
+        { x: band.labelX + countHalfWidth + bandPad, y: band.labelY + countHalfHeight + bandPad },
       ]),
     ];
 
@@ -415,8 +419,10 @@
     while (svg.firstChild) svg.removeChild(svg.firstChild);
 
     const vb = geometry.viewBox;
-    const pad = 55;
-    svg.setAttribute('viewBox', `${vb.x - pad} ${vb.y - pad} ${vb.width + pad * 2} ${vb.height + pad * 2}`);
+    const padX = 28;
+    const padTop = 28;
+    const padBottom = 64;
+    svg.setAttribute('viewBox', `${vb.x - padX} ${vb.y - padTop} ${vb.width + padX * 2} ${vb.height + padTop + padBottom}`);
 
     const defs = createSvg('defs');
     defs.innerHTML = `
@@ -447,10 +453,10 @@
     const grid = createSvg('g', { className: 'grid' });
     svg.appendChild(grid);
     const gridStep = 90;
-    const startX = Math.floor((vb.x - pad) / gridStep) * gridStep;
-    const endX = Math.ceil((vb.x + vb.width + pad) / gridStep) * gridStep;
-    const startY = Math.floor((vb.y - pad) / gridStep) * gridStep;
-    const endY = Math.ceil((vb.y + vb.height + pad) / gridStep) * gridStep;
+    const startX = Math.floor((vb.x - padX) / gridStep) * gridStep;
+    const endX = Math.ceil((vb.x + vb.width + padX) / gridStep) * gridStep;
+    const startY = Math.floor((vb.y - padTop) / gridStep) * gridStep;
+    const endY = Math.ceil((vb.y + vb.height + padBottom) / gridStep) * gridStep;
     for (let x = startX; x <= endX; x += gridStep) {
       grid.appendChild(createSvg('line', { className: 'grid-line', x1: x, y1: startY, x2: x, y2: endY }));
     }
