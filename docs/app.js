@@ -420,8 +420,8 @@
 
     const vb = geometry.viewBox;
     const padX = 28;
-    const padTop = 28;
-    const padBottom = 64;
+    const padTop = 46;
+    const padBottom = 92;
     svg.setAttribute('viewBox', `${vb.x - padX} ${vb.y - padTop} ${vb.width + padX * 2} ${vb.height + padTop + padBottom}`);
 
     const defs = createSvg('defs');
@@ -551,8 +551,9 @@
 
     const digitLabels = [];
     const { toXY, uGroups, vGroups, ranges } = geometry;
+    const digitLabelOffset = 0.22;
     calc.aDigits.forEach((digit, i) => {
-      const p = toXY(uGroups[i], ranges.vMax + 0.36);
+      const p = toXY(uGroups[i], ranges.vMax + digitLabelOffset);
       const group = createSvg('g', { className: 'svg-label' });
       group.appendChild(createSvg('circle', {
         cx: p.x,
@@ -571,7 +572,7 @@
       digitLabels.push(group);
     });
     calc.bDigits.forEach((digit, j) => {
-      const p = toXY(ranges.uMax + 0.36, vGroups[j]);
+      const p = toXY(ranges.uMax + digitLabelOffset, vGroups[j]);
       const group = createSvg('g', { className: 'svg-label' });
       group.appendChild(createSvg('circle', {
         cx: p.x,
@@ -623,7 +624,7 @@
 
     const finalGroup = createSvg('g', { className: 'final-svg-label' });
     const finalX = vb.x + vb.width / 2;
-    const finalY = vb.y + vb.height + 38;
+    const finalY = vb.y + vb.height + 58;
     addText(finalGroup, `${aString} × ${bString} = ${calc.productString}`, finalX, finalY, { 'text-anchor': 'middle' });
     groups.final.appendChild(finalGroup);
 
