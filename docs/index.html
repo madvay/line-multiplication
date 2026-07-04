@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Line Multiplication Lab</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Ramanujan / Vedic / Japanese line multiplication</p>
+        <h1>Line Multiplication Lab</h1>
+        <p class="lede">
+          Draw digit-groups as colored parallel lines, reveal their intersections, group the diagonals, count dots, carry, and read the product.
+        </p>
+      </div>
+      <div class="hero-card" aria-label="Current equation">
+        <div class="equation-preview" id="equationPreview">14 × 27</div>
+        <div class="equals-preview" id="equalsPreview">= 378</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="control-panel" aria-label="Controls">
+        <section class="panel-card">
+          <h2>Choose numbers</h2>
+          <div class="input-grid">
+            <label>
+              <span>First number</span>
+              <input id="numberA" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="14" />
+            </label>
+            <label>
+              <span>Second number</span>
+              <input id="numberB" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="27" />
+            </label>
+          </div>
+          <p class="hint">Up to four digits per number. Smaller digits make a clearer diagram.</p>
+          <div class="button-row">
+            <button id="buildBtn" class="secondary">Build</button>
+            <button id="playBtn" class="primary">Animate</button>
+          </div>
+          <div class="button-row compact">
+            <button id="pauseBtn">Pause</button>
+            <button id="stepBtn">Step</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+          <div class="button-row compact">
+            <button id="exampleBtn">14 × 27</button>
+            <button id="randomBtn">Random</button>
+          </div>
+          <label class="speed-label">
+            <span>Animation speed <strong id="speedText">1.0×</strong></span>
+            <input id="speed" type="range" min="0.25" max="2.5" step="0.25" value="1" />
+          </label>
+          <div class="progress-track" aria-label="Animation progress">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <p id="warning" class="warning" role="status"></p>
+        </section>
+
+        <section class="panel-card">
+          <h2>Digit colors</h2>
+          <div id="legend" class="legend"></div>
+        </section>
+
+        <section class="panel-card">
+          <h2>Current stage</h2>
+          <div class="stage-box">
+            <div id="stageTitle" class="stage-title">Ready</div>
+            <p id="stageDetail" class="stage-detail">Press Animate or Step to begin.</p>
+          </div>
+        </section>
+      </aside>
+
+      <section class="visual-panel" aria-label="Animated multiplication diagram">
+        <div class="svg-toolbar">
+          <div>
+            <h2>Diagram</h2>
+            <p id="diagramSubtitle">Each digit becomes that many colored parallel lines.</p>
+          </div>
+          <div id="complexity" class="complexity-pill"></div>
+        </div>
+        <div class="svg-wrap">
+          <svg id="diagram" role="img" aria-labelledby="svgTitle svgDesc">
+            <title id="svgTitle">Line multiplication diagram</title>
+            <desc id="svgDesc">Animated SVG showing colored line groups, intersection dots, diagonal grouping curves, counts, carrying, and final multiplication result.</desc>
+          </svg>
+        </div>
+      </section>
+
+      <section class="work-panel" aria-label="Dot counts and carrying">
+        <div class="result-card">
+          <p class="eyebrow">Result</p>
+          <div id="result" class="result">—</div>
+          <p id="resultCheck" class="result-check"></p>
+        </div>
+
+        <div class="panel-card counts-card">
+          <h2>Diagonal dot counts</h2>
+          <div id="countChips" class="count-chips"></div>
+        </div>
+
+        <div class="panel-card carry-card">
+          <h2>Carrying</h2>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Band</th>
+                  <th>Dots</th>
+                  <th>Carry in</th>
+                  <th>Total</th>
+                  <th>Write</th>
+                  <th>Carry left</th>
+                </tr>
+              </thead>
+              <tbody id="carryBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <details class="method-card" open>
+          <summary>How the method maps to multiplication</summary>
+          <p>
+            For every pair of digits, the line crossings equal their product. Crossings on the same diagonal have the same place value, so their counts are added. Then the normal base-ten carry process is applied from right to left.
+          </p>
+        </details>
+      </section>
+    </main>
+  </div>
+  <script src="app.js" defer></script>
+</body>
+</html>
